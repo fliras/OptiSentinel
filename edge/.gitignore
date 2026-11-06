@@ -1,0 +1,22 @@
+# ambiente virtual
+.venv/
+__pycache__/
+*.pyc
+
+# dados e credenciais (nunca versionar)
+data/
+kaggle.json
+.kaggle/
+*.env
+
+# modelos e resultados de treino (pesados, gerados localmente)
+models/*.pt
+models/*.onnx
+runs/
+
+# eventos opcionais de inferencia (desligado por padrao, mas por seguranca)
+events/
+*.jpg
+*.png
+*.mp4
+!docs/**/*.png

@@ -1,0 +1,28 @@
+[project]
+name = "edge"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Vinícius Yamaguti", email = "vinicius.yamaguti+avenue@avenue.us" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "kagglehub>=1.0.0",
+    "onnx>=1.16.0",
+    "onnxruntime>=1.18.0",
+    "opencv-python>=4.9.0",
+    "pyyaml>=6.0",
+    "tabulate>=0.9.0",
+    "ultralytics>=8.3.0",
+]
+
+[project.scripts]
+edge = "edge:main"
+
+[[tool.uv.index]]
+url = "https://us-east4-python.pkg.dev/prj-avn-ai-dev-01/ai-proxy-artifacts/simple/"
+
+[build-system]
+requires = ["uv_build>=0.12.12,<0.13.0"]
+build-backend = "uv_build"
