@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Validador de payload — OptiSentinel</title>
+<style>
+  body { font-family: system-ui, -apple-system, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; color: #222; }
+  h1 { font-size: 1.4rem; margin-bottom: .25rem; }
+  .hint { font-size: .85rem; color: #666; }
+  label { display: block; margin-top: 1rem; font-weight: 600; font-size: .9rem; }
+  input[type=text], input[type=file] { width: 100%; padding: .5rem; margin-top: .25rem; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: .95rem; }
+  button { margin-top: 1.25rem; padding: .6rem 1.2rem; background: #0066cc; color: #fff; border: 0; border-radius: 4px; font-size: 1rem; cursor: pointer; }
+  button:disabled { background: #888; cursor: not-allowed; }
+  pre { background: #f4f4f4; padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: .85rem; }
+  .ok { border-left: 4px solid #28a745; padding-left: 1rem; }
+  .err { border-left: 4px solid #dc3545; padding-left: 1rem; }
+  #result { margin-top: 2rem; }
+  #result h2 { font-size: 1rem; margin-bottom: .5rem; }
+</style>
+</head>
+<body>
+  <h1>Validador de payload do evento</h1>
+  <p class="hint">Envia para <code>{{ endpoint }}</code> sem chamar o Gemini. Útil para ver exatamente o que o servidor recebeu e quais erros o serializer gerou.</p>
+
+  <form id="form">
+    {% csrf_token %}
+    <label for="image">Imagem (JPEG ou PNG, até 10 MB)</label>
+    <input type="file" id="image" name="image" accept="image/jpeg,image/png" required>
+
+    <label for="camera_id">camera_id</label>
+    <input type="text" id="camera_id" name="camera_id" value="CAM-03" required>
+
+    <label for="setor">setor</label>
+    <input type="text" id="setor" name="setor" value="Expedicao" required>
+
+    <label for="timestamp">timestamp (ISO 8601)</label>
+    <input type="text" id="timestamp" name="timestamp" value="2026-10-29T14:32:10" required>
+
+    <label for="deteccao">deteccao</label>
+    <input type="text" id="deteccao" name="deteccao" value="pessoa_sem_capacete" required>
+
+        <div style="display:flex; gap:.5rem; margin-top:1.25rem;">
+      <button type="submit" formaction="/api/v1/events/validate/">
+        Validar (sem Gemini)
+      </button>
+      <button type="submit" formaction="/api/v1/events/diagnose/"
+              style="background:#7a1f1f;">
+        Diagnosticar (pipeline completo)
+      </button>
+    </div>
+  </form>
+
+  <div id="result"></div>
+
+    <script>
+    const form = document.getElementById('form');
+    const result = document.getElementById('result');
+    const csrfInput = form.querySelector('[name=csrfmiddlewaretoken]');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitter = e.submitter;
+      const url = submitter?.formAction || window.location.pathname;
+      const buttons = form.querySelectorAll('button[type=submit]');
+      buttons.forEach(b => b.disabled = true);
+      result.innerHTML = '<p>Enviando…</p>';
+
+      const data = new FormData(form);
+      if (csrfInput) data.delete(csrfInput.name);
+
+      const headers = { 'Accept': 'application/json' };
+      if (csrfInput && csrfInput.value) headers['X-CSRFToken'] = csrfInput.value;
+
+      try {
+        const resp = await fetch(url, { method: 'POST', headers, body: data });
+        const json = await resp.json();
+        const cls = resp.ok ? 'ok' : 'err';
+        result.innerHTML = `
+          <h2>HTTP ${resp.status} ${resp.ok ? 'OK' : 'ERRO'} — ${url}</h2>
+          <div class="${cls}"><pre>${JSON.stringify(json, null, 2)}</pre></div>
+        `;
+      } catch (err) {
+        result.innerHTML = `<h2>Erro de rede</h2><div class="err"><pre>${err.message}</pre></div>`;
+      } finally {
+        buttons.forEach(b => b.disabled = false);
+      }
+    });
+  </script>
+</body>
+</html>
