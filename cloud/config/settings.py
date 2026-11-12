@@ -76,6 +76,24 @@ REST_FRAMEWORK = {
     ],
 }
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simples": {
+            "format": "{asctime} {levelname:7} {name}: {message}",
+            "style": "{",
+            "datefmt": "%H:%M:%S",
+        },
+    },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "simples"},
+    },
+    "loggers": {
+        "events": {"handlers": ["console"], "level": "INFO", "propagate": False},
+    },
+}
+
 # Uploads de imagem
 DATA_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024   # 20 MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024

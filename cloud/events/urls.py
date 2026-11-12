@@ -1,9 +1,8 @@
 from django.urls import path
 
-from .views import DescribeEventView, ValidateEventInputView, DiagnoseEventView
+from .views import DescreverEventoView, DiagnosticarEventoView
 
 urlpatterns = [
-    path("describe/", DescribeEventView.as_view(), name="events-describe"),
-    path("validate/", ValidateEventInputView.as_view(), name="events-validate"),
-    path("diagnose/", DiagnoseEventView.as_view(), name="events-diagnose"),
+    path("descrever/", DescreverEventoView.as_view(), name="descrever"),
+    path("diagnosticar/", DiagnosticarEventoView.as_view(), name="diagnosticar"),
 ]
